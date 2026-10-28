@@ -7,7 +7,7 @@ Festgehalten wird nur, was belegt ist: ein Test, ein Entscheid von Alain oder ei
 | Stand | 2026-10-28 |
 | Grundlage | `prompts/startprompt-claude-code-negative-zahlen.md`, `docs/Spezifikation Lab «Negative Zahlen».md`, `docs/Design-Skills.md` 1.1 |
 | Ablage | Repo-Wurzel, Ziel-URL `https://www.cogniviolabs.com/lab/math/negative-zahlen/` |
-| Commits | noch keine (alles ungestaged) |
+| Letzter erfasster Commit | 93aad27 (Branch `lab-negative-zahlen`) |
 | Nächster Schritt | Abnahme durch Alain, offene Punkte unten |
 
 ## Bauphasen
