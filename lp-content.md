@@ -4,9 +4,9 @@ fach: Mathematik
 stufe: Sek I
 slug: negative-zahlen
 breadcrumb_fach_label: Mathematik
-breadcrumb_fach_url: https://www.cogniviolabs.com/lab/math
+breadcrumb_fach_url: https://cogniviolabs.com/lab/math/
 breadcrumb_lab_label: Negative Zahlen
-breadcrumb_lab_url: https://www.cogniviolabs.com/lab/math/negative-zahlen
+breadcrumb_lab_url: https://cogniviolabs.com/lab/math/negative-zahlen/
 lernziele:
   - SuS unterscheiden in einem Term Vorzeichen und Rechenzeichen
   - SuS addieren und subtrahieren ganze Zahlen, mit und ohne Klammern, und kontrollieren das Ergebnis am Zahlenstrahl
@@ -89,9 +89,9 @@ Am Ende jeder Runde stellt das Lab eine Strategie-Frage, zum Beispiel «Woran ha
 
 Ohne Parameter wechseln die Lernenden Reiter und Modus frei. Mit `mode` legen Sie einen Modus fest:
 
-- Entdecken: `https://www.cogniviolabs.com/lab/math/negative-zahlen/?mode=entdecken`
-- Üben: `https://www.cogniviolabs.com/lab/math/negative-zahlen/?mode=ueben`
-- Check: `https://www.cogniviolabs.com/lab/math/negative-zahlen/?mode=check`
+- Entdecken: `https://cogniviolabs.com/lab/math/negative-zahlen/?mode=entdecken`
+- Üben: `https://cogniviolabs.com/lab/math/negative-zahlen/?mode=ueben`
+- Check: `https://cogniviolabs.com/lab/math/negative-zahlen/?mode=check`
 
 Weitere Parameter:
 

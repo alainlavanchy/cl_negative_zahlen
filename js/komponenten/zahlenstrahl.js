@@ -252,6 +252,8 @@ export function zahlenstrahl(opts) {
     el: wrapper,
     wert: () => wert,
     setzen: (n) => setzen(n, { melden: false }),
+    // Schritt um d (z. B. Schritt-Tasten neben dem Strahl); meldet den neuen Wert wie Ziehen
+    schritt(d) { if (interaktiv && !anim) setzen(wert + d); },
     blick(richtung) { blick = richtung < 0 ? -1 : 1; figurZeichnen(); },
     gehen,
     zuruecksetzen(start = o.start, richtung = 1) {

@@ -4,7 +4,7 @@ import { t } from '../core/i18n.js';
 import { fmt, fmtPunkt, sprich } from '../core/zahl.js';
 import * as diagnose from '../core/diagnose.js';
 import { h, id } from '../ui/dom.js';
-import { zahlEingabe } from '../ui/zahl-eingabe.js';
+import { zahlenfeld } from '../ui/zahlenfeld.js';
 import { gruppe, roving } from '../ui/aria-gruppen.js';
 import { koordinatensystem } from '../komponenten/koordinatensystem.js';
 import { knopf } from './gemeinsam.js';
@@ -44,21 +44,43 @@ function ansicht(aufgabe, auftrag, inhalt, extra) {
   };
 }
 
+// Zwei Zahlenfelder für x und y. Enter in x springt nach y, Enter in y prüft.
+function xyFelder(ctx, auftrag) {
+  let ey = null;
+  const ex = zahlenfeld({ label: 'label.x', ariaLabel: t('label.x') + ': ' + auftrag, onEnter: () => ey.fokus() });
+  ey = zahlenfeld({ label: 'label.y', ariaLabel: t('label.y') + ': ' + auftrag, onEnter: () => ctx.pruefen() });
+  return {
+    el: h('div', { class: 'eingabe-zeile' }, ex.el, ey.el),
+    wert: () => (ex.wert() === null || ey.wert() === null ? null : [ex.wert(), ey.wert()]),
+    fokus: () => ex.fokusAuto(),
+    leeren() { ex.leeren(); ey.leeren(); },
+    sperren() { ex.sperren(true); ey.sperren(true); },
+  };
+}
+
+// Punkt im Koordinatensystem gezeigt, Antwort als (x | y) über zwei Zahlenfelder
+// (punkt_ablesen, spiegeln, verschieben). nachAbschluss(k) zeigt danach Lösung oder Pfeil.
+function punktEingabeAnsicht(aufgabe, ctx, { auftrag, gegeben, label, nachAbschluss }) {
+  const k = ks();
+  const fest = [{ x: gegeben[0], y: gegeben[1], art: 'gegeben', label }];
+  k.punkte(fest);
+  const felder = xyFelder(ctx, auftrag);
+  return ansicht(aufgabe, auftrag, [szene(k), h('p', { class: 'meta' }, t('koord.reihenfolge')), felder.el], {
+    antwort: () => felder.wert(),
+    fokus: () => felder.fokus(),
+    leeren: () => felder.leeren(),
+    sperren: () => felder.sperren(),
+    abschliessen() {
+      const l = aufgabe.loesung;
+      if (nachAbschluss) k.punkte([...fest, { x: l[0], y: l[1], art: 'gesetzt', label: 'P' + STRICH + ' ' + fmtPunkt(l) }]);
+      nachAbschluss?.(k);
+    },
+  });
+}
+
 // ── Punkt ablesen: Punkt ist markiert, Lernende geben (x | y) ein ─────────────
 export function punktAblesen(aufgabe, ctx) {
-  const k = ks();
-  k.punkte([{ x: aufgabe.punkt[0], y: aufgabe.punkt[1], art: 'gegeben', label: 'P' }]);
-  const ex = zahlEingabe({ label: 'label.x' });
-  const ey = zahlEingabe({ label: 'label.y', onEnter: () => ctx.pruefen() });
-  return ansicht(aufgabe, t('task.punkt_ablesen'), [
-    szene(k),
-    h('p', { class: 'meta' }, t('koord.reihenfolge')),
-    h('div', { class: 'eingabe-zeile' }, ex.el, ey.el),
-  ], {
-    antwort: () => (ex.wert() === null || ey.wert() === null ? null : [ex.wert(), ey.wert()]),
-    fokus: () => ex.fokus(),
-    sperren() { ex.sperren(true); ey.sperren(true); },
-  });
+  return punktEingabeAnsicht(aufgabe, ctx, { auftrag: t('task.punkt_ablesen'), gegeben: aufgabe.punkt, label: 'P' });
 }
 
 // Einzelnen Punkt setzen (für punkt_setzen, spiegeln, verschieben)
@@ -90,13 +112,19 @@ export function punktSetzen(aufgabe, ctx) {
 }
 
 export function spiegeln(aufgabe, ctx) {
-  return punktSetzenAnsicht(aufgabe, ctx, t(aufgabe.achse === 'x' ? 'task.spiegeln_x' : 'task.spiegeln_y'), aufgabe.punkt);
+  return punktEingabeAnsicht(aufgabe, ctx, {
+    auftrag: t(aufgabe.achse === 'x' ? 'task.spiegeln_x' : 'task.spiegeln_y'),
+    gegeben: aufgabe.punkt, label: 'P ' + fmtPunkt(aufgabe.punkt), nachAbschluss: () => {},
+  });
 }
 
 export function verschieben(aufgabe, ctx) {
   const [dx, dy] = aufgabe.vektor;
-  return punktSetzenAnsicht(aufgabe, ctx, t('task.verschieben', { dx: fmt(dx, true), dy: fmt(dy, true) }), aufgabe.punkt,
-    (k) => k.pfeile([{ von: aufgabe.punkt, nach: aufgabe.loesung }]));
+  return punktEingabeAnsicht(aufgabe, ctx, {
+    auftrag: t('task.verschieben', { dx: fmt(dx, true), dy: fmt(dy, true) }),
+    gegeben: aufgabe.punkt, label: 'P ' + fmtPunkt(aufgabe.punkt),
+    nachAbschluss: (k) => k.pfeile([{ von: aufgabe.punkt, nach: aufgabe.loesung }]),
+  });
 }
 
 // ── Quadrant: aus den Vorzeichen schliessen, das Bild kommt erst danach ─────────

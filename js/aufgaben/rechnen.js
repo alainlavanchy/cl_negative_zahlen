@@ -2,12 +2,12 @@
 // optional Zahlenstrahl (Eingabe durch Ziehen) und Kontrolle am Zahlenstrahl.
 import { t } from '../core/i18n.js';
 import { fmt, MINUS } from '../core/zahl.js';
-import { anzeigen, aufloesen, gegenzahlForm, zeichenAnzeige } from '../core/term.js';
+import { anzeigen, aufloesen, gegenzahlForm, zeichenAnzeige, sprechen } from '../core/term.js';
 import * as diagnose from '../core/diagnose.js';
-import { h } from '../ui/dom.js';
-import { zahlEingabe } from '../ui/zahl-eingabe.js';
+import { h, s as svg, autoFokus } from '../ui/dom.js';
+import { zahlenfeld } from '../ui/zahlenfeld.js';
 import * as rm from '../ui/rueckmeldung.js';
-import { termElement, schritteAusTerm, strahl, legende, knopf } from './gemeinsam.js';
+import { termElement, schritteAusTerm, strahl, legende, knopf, woerter } from './gemeinsam.js';
 
 export function rechnenAnsicht(aufgabe, ctx) {
   const uebt = ctx.modus === 'ueben';
@@ -20,6 +20,7 @@ export function rechnenAnsicht(aufgabe, ctx) {
 
   // Gegenzahl: jede Subtraktion als Addition der Gegenzahl zeigen (nicht im Check)
   let zs = null;
+  let schrittTasten = [];
   let gegenRow = null;
   const gegen = gegenzahlForm(aufgabe.term);
   if (uebt && gegen) {
@@ -39,7 +40,12 @@ export function rechnenAnsicht(aufgabe, ctx) {
 
   // Schritt 2: Klammer auflösen (Reiter Klammern, nur beim Üben)
   const aufl = ctx.reiter === 'klammern' && uebt ? aufloesen(aufgabe.term) : null;
-  const eingabe = zahlEingabe({ label: 'label.ergebnis', onEnter: () => ctx.pruefen(), onInput: (n) => { if (zs && n !== null) zs.setzen(n); } });
+  const eingabe = zahlenfeld({
+    label: 'label.ergebnis',
+    ariaLabel: t('label.ergebnis') + ': ' + sprechen(aufgabe.term, woerter()),
+    onEnter: () => ctx.pruefen(),
+    onInput: (n) => { if (zs && n !== null) zs.setzen(n); },
+  });
   const rechnenTeil = h('div', { class: 'stack' });
 
   if (aufl && aufl.paare.length) {
@@ -60,7 +66,7 @@ export function rechnenAnsicht(aufgabe, ctx) {
           if (offen === 0) {
             ergebnisZeile.textContent = t('kl.aufgeloest', { term: anzeigen(aufl.term) });
             rechnenTeil.hidden = false;
-            eingabe.fokus();
+            eingabe.fokusAuto();
           }
         } else {
           meldung.replaceChildren(rm.fehlerText(t(regel)));
@@ -84,8 +90,21 @@ export function rechnenAnsicht(aufgabe, ctx) {
       onConfirm: () => ctx.pruefen(),
     });
     zs.blick(bahn.schritte[0].blick);
-    rechnenTeil.append(h('p', { class: 'meta' }, t('zs.ziehen')), h('div', { class: 'scene zs-scene' }, zs.el), legende());
+    // Antwort am Zahlenstrahl: ziehen, antippen, Pfeiltasten oder Schritt-Tasten.
+    // Auf schmalen Bildschirmen sind 41 Teilstriche zu eng, darum sind die Schritt-Tasten Pflicht.
+    const pfeil = (d) => svg('svg', { width: 18, height: 18, viewBox: '0 0 18 18', 'aria-hidden': 'true' },
+      svg('path', { d: d < 0 ? 'M11,3 L5,9 L11,15' : 'M7,3 L13,9 L7,15', fill: 'none', stroke: 'currentColor', 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+    schrittTasten = [-1, 1].map((d) => h('button', {
+      type: 'button', class: 'btn btn--secondary zs-schritt',
+      'aria-label': t(d < 0 ? 'a11y.schritt_links' : 'a11y.schritt_rechts'),
+      onclick: () => zs.schritt(d),
+    }, pfeil(d)));
+    rechnenTeil.append(
+      h('p', { class: 'meta' }, t('zs.ziehen')),
+      h('div', { class: 'zs-mit-tasten' }, schrittTasten[0], h('div', { class: 'scene zs-scene' }, zs.el), schrittTasten[1]),
+      legende());
   }
+  // Mit Zahlenstrahl ist das Zahlenfeld eine Alternative, ohne Autofokus
   rechnenTeil.append(eingabe.el);
   el.append(rechnenTeil);
 
@@ -95,11 +114,26 @@ export function rechnenAnsicht(aufgabe, ctx) {
 
   return {
     el,
-    antwort: () => eingabe.wert(),
+    // Mit Zahlenstrahl zählt die Zahl, auf der die Figur steht (Feld und Figur sind gekoppelt)
+    antwort: () => (zs ? zs.wert() : eingabe.wert()),
     bewerten: (a) => ({ richtig: diagnose.istRichtig(aufgabe, a), fehlertyp: diagnose.fehlertyp(aufgabe, a) }),
     loesungText: () => fmt(aufgabe.loesung),
-    fokus: () => (rechnenTeil.hidden ? el.querySelector('.aufloesen button')?.focus() : eingabe.fokus()),
-    sperren() { eingabe.sperren(true); zs?.interaktiv(false); if (gegenRow) gegenRow.hidden = true; },
+    fokus() {
+      if (rechnenTeil.hidden) el.querySelector('.aufloesen button')?.focus();
+      else if (zs) { if (autoFokus()) zs.fokus(); }
+      else eingabe.fokusAuto();
+    },
+    leeren() {
+      eingabe.leeren();
+      // Die Figur startet wieder auf der Startzahl
+      if (zs) { zs.zuruecksetzen(bahn.start, bahn.schritte[0].blick); }
+    },
+    sperren() {
+      eingabe.sperren(true);
+      zs?.interaktiv(false);
+      schrittTasten.forEach((b) => { b.disabled = true; });
+      if (gegenRow) gegenRow.hidden = true;
+    },
     async abschliessen() {
       if (!bahn || !uebt) return;
       if (zs) {

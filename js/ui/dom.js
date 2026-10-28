@@ -32,3 +32,8 @@ export function id(prefix) {
 export function bewegungReduziert() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
+
+// Automatischer Fokus nur bei feinem Zeiger (Maus, Trackpad), nicht auf Touch-Geräten.
+export function autoFokus() {
+  return !window.matchMedia('(pointer: coarse)').matches;
+}

@@ -27,7 +27,7 @@ export function fmt(n, mitPlus = false) {
 
 // Für aria-label und aria-valuetext: Screenreader lesen U+2212 nicht zuverlässig.
 export function sprich(n) {
-  if (n < 0) return t('a11y.minus', { n: fmt(-n) });
+  if (n < 0) return t('a11y.minus') + ' ' + fmt(-n);
   return fmt(n);
 }
 

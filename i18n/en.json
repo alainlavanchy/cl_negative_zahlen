@@ -195,7 +195,7 @@
   "legal.laden": "Loading …",
   "legal.fehler": "The content could not be loaded. Please try again later.",
   "legal.schliessen": "Close",
-  "a11y.minus": "minus {n}",
+  "a11y.minus": "minus",
   "muster.zahlenstrahl.frage1": "Work out the three tasks on the number line. Compare the results. What do you notice?",
   "label.zahl": "Number",
   "label.rechenzeichen_waehlen": "Choose the operation sign",
@@ -231,5 +231,12 @@
   "lp.meta.stufe": "Level",
   "lp.meta.dauer": "Duration",
   "lp.meta.voraussetzungen": "Prerequisites",
-  "lp.meta.lp21": "Curriculum 21"
+  "lp.meta.lp21": "Curriculum 21",
+  "a11y.plus": "plus",
+  "btn.vorzeichen": "Change sign",
+  "a11y.schritt_links": "one to the left",
+  "a11y.schritt_rechts": "one to the right",
+  "a11y.eins_mehr": "one more",
+  "a11y.eins_weniger": "one less",
+  "zs.bereich": "Choose numbers from {min} to {max}."
 }

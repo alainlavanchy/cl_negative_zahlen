@@ -3,8 +3,10 @@
 import { t } from '../core/i18n.js';
 import { fmt } from '../core/zahl.js';
 import { h } from './dom.js';
-import { zahlEingabe } from './zahl-eingabe.js';
-import { termElement } from '../aufgaben/gemeinsam.js';
+import { sprechen } from '../core/term.js';
+import { zahlenfeld } from './zahlenfeld.js';
+import { vorzeichenEntscheid } from './zahl-eingabe.js';
+import { termElement, woerter } from '../aufgaben/gemeinsam.js';
 
 // onRegel(muster) wird aufgerufen, sobald die Regel erscheint (Beobachtung abgeschlossen).
 export function musterBlock(muster, regelKeys, onRegel) {
@@ -21,7 +23,10 @@ export function musterBlock(muster, regelKeys, onRegel) {
     const istLuecke = muster.luecken.includes(i);
     let zelle;
     if (istLuecke) {
-      const e = zahlEingabe({ label: 'muster.luecke', onInput: pruefeVollstaendig });
+      // Bei Mal und geteilt zuerst das Vorzeichen entscheiden, sonst ein Zahlenfeld
+      const e = muster.operation === 'mal'
+        ? vorzeichenEntscheid({ onInput: pruefeVollstaendig })
+        : zahlenfeld({ label: 'muster.luecke', ariaLabel: t('muster.luecke') + ': ' + sprechen(r.term, woerter()), onInput: pruefeVollstaendig });
       eingaben.set(i, e);
       zelle = e.el;
     } else {

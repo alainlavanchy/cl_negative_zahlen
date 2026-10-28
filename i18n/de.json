@@ -195,7 +195,7 @@
   "legal.laden": "Wird geladen …",
   "legal.fehler": "Der Inhalt konnte nicht geladen werden. Versuche es später noch einmal.",
   "legal.schliessen": "Schliessen",
-  "a11y.minus": "minus {n}",
+  "a11y.minus": "minus",
   "muster.zahlenstrahl.frage1": "Rechne die drei Aufgaben am Zahlenstrahl. Vergleiche die Ergebnisse. Was fällt dir auf?",
   "label.zahl": "Zahl",
   "label.rechenzeichen_waehlen": "Rechenzeichen wählen",
@@ -231,5 +231,12 @@
   "lp.meta.stufe": "Stufe",
   "lp.meta.dauer": "Dauer",
   "lp.meta.voraussetzungen": "Voraussetzungen",
-  "lp.meta.lp21": "Lehrplan 21"
+  "lp.meta.lp21": "Lehrplan 21",
+  "a11y.plus": "plus",
+  "btn.vorzeichen": "Vorzeichen wechseln",
+  "a11y.schritt_links": "eins nach links",
+  "a11y.schritt_rechts": "eins nach rechts",
+  "a11y.eins_mehr": "eins mehr",
+  "a11y.eins_weniger": "eins weniger",
+  "zs.bereich": "Wähle Zahlen von {min} bis {max}."
 }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>Cogniviolabs</title>
+  <link rel="canonical" href="https://cogniviolabs.com/lab/math/negative-zahlen/">
   <link rel="preconnect" href="https://assets.cogniviolabs.com" crossorigin>
   <link rel="stylesheet" href="https://assets.cogniviolabs.com/css/cognivio-common.v1.css">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -51,6 +52,9 @@
       font-size: var(--h3); letter-spacing: 0.02em; margin: 0;
     }
     .term--klein { font-size: var(--text-lg); }
+    .term--gross { font-size: var(--h2); }
+    .live-term { margin-bottom: var(--space-3); }
+    .baukasten { align-items: flex-end; }
     .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
     .btn-row .btn { min-height: 2.75rem; }
     .btn-row:empty { display: none; }
@@ -65,8 +69,37 @@
     .eingabe-zeile .zahl-eingabe { flex-direction: column; align-items: flex-start; }
     .eingabe-zeile .zahl-eingabe .ui-label { min-width: 0; }
 
+    /* Zahlenfeld: Präfix (Vorzeichen) und Ziffern in einem Rahmen, daneben die ±-Taste */
+    .zahlenfeld { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+    .zahlenfeld__zeile { display: flex; align-items: center; gap: var(--space-2); }
+    .zahlenfeld__rahmen {
+      display: flex; align-items: center; min-height: 2.75rem; min-width: 6.5rem; padding: 0 var(--space-3);
+      font-family: var(--font-ui); font-size: var(--h3); font-weight: 600; font-feature-settings: "lnum", "tnum";
+      color: var(--color-text); background: var(--color-surface);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm); cursor: text;
+    }
+    .zahlenfeld__rahmen:focus-within { border-color: var(--color-signal); box-shadow: var(--focus-ring); }
+    .zahlenfeld__vz { min-width: 0.6em; }
+    .zahlenfeld__rahmen input.zahlenfeld__eingabe {
+      width: 3.2ch; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; outline: none;
+      font: inherit; font-feature-settings: "lnum", "tnum"; color: inherit;
+    }
+    .zahlenfeld__taste { min-width: 2.75rem; min-height: 2.75rem; padding: 0 var(--space-3); font-size: var(--text-lg); justify-content: center; }
+
     /* Zahlenstrahl (Komponente) */
     .zs-scene { padding: var(--space-3) var(--space-2); }
+    /* Schritt-Tasten links und rechts vom Strahl; auf schmalen Bildschirmen darunter, damit der Strahl die volle Breite hat */
+    .zs-mit-tasten { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "links strahl rechts"; align-items: center; gap: var(--space-2); }
+    .zs-mit-tasten > .scene { grid-area: strahl; }
+    .zs-mit-tasten > .zs-schritt:first-child { grid-area: links; }
+    .zs-mit-tasten > .zs-schritt:last-child { grid-area: rechts; }
+    @media (max-width: 40rem) {
+      .zs-mit-tasten { grid-template-columns: 1fr 1fr; grid-template-areas: "strahl strahl" "links rechts"; }
+      .zs-mit-tasten > .zs-schritt:first-child { justify-self: end; }
+      .zs-mit-tasten > .zs-schritt:last-child { justify-self: start; }
+      .zs-scene { padding: var(--space-2) var(--space-1); }
+    }
+    .zs-schritt { flex: none; width: 2.75rem; height: 2.75rem; padding: 0; justify-content: center; }
     .zahlenstrahl-wrap { width: 100%; }
     svg.zahlenstrahl { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; }
     .zs-figur { cursor: grab; outline: none; }
@@ -172,7 +205,7 @@
       <nav class="breadcrumb" data-i18n-aria-label="nav.breadcrumb">
         <a href="https://www.cogniviolabs.com">Cogniviolabs</a>
         <span aria-hidden="true">/</span>
-        <a href="https://www.cogniviolabs.com/lab/math" data-i18n="nav.fach"></a>
+        <a href="https://cogniviolabs.com/lab/math/" data-i18n="nav.fach"></a>
         <span aria-hidden="true">/</span>
         <span aria-current="page" data-i18n="lab.title"></span>
       </nav>
@@ -186,7 +219,7 @@
     <p class="meta" data-i18n="lab.meta"></p>
     <h1 class="lab-title" data-i18n="lab.title"></h1>
     <p class="prose" data-i18n="lab.kernfrage"></p>
-    <a class="lp-link" href="https://www.cogniviolabs.com/lab/math/negative-zahlen/lehrperson" data-i18n="nav.lp_link"></a>
+    <a class="lp-link" href="lehrperson.html" data-i18n="nav.lp_link"></a>
   </div>
 
   <div id="ladeFehler" class="callout callout--error" role="alert" hidden></div>
@@ -235,7 +268,7 @@
       <span aria-hidden="true">·</span>
       <button type="button" class="linklike" data-legal="datenschutz" data-i18n="footer.datenschutz"></button>
       <span aria-hidden="true">·</span>
-      <a href="https://www.cogniviolabs.com/lab/math/negative-zahlen/lehrperson" data-i18n="footer.lp_link"></a>
+      <a href="lehrperson.html" data-i18n="footer.lp_link"></a>
     </div>
     <p class="meta" data-marke="Cogniviolabs"></p>
     <p class="meta page-footer__copy">© 2026 Cogniviolabs · Alain Nicolas Lavanchy · Kanton Aargau</p>

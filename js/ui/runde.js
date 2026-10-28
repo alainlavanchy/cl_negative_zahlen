@@ -87,6 +87,8 @@ export function runde(opts) {
         ansicht.abschliessen({ zeigeLoesung: true });
         weiterBtn.focus();
       } else {
+        // Nach einer falschen Antwort ist das Feld geleert (Fokus nur ohne Touch, siehe Zahlenfeld)
+        ansicht.leeren?.();
         ansicht.fokus();
       }
     }
