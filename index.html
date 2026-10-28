@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Cogniviolabs</title>
+  <link rel="preconnect" href="https://assets.cogniviolabs.com" crossorigin>
+  <link rel="stylesheet" href="https://assets.cogniviolabs.com/css/cognivio-common.v1.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <style>
+    /* Seitenspezifisches Layout, nur Tokens (Design-Skills 5.2).
+       Kandidaten für die gemeinsame CSS: .topbar, .breadcrumb, .page-footer, .legal-dialog */
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+    [hidden] { display: none !important; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      gap: var(--space-3) var(--space-5);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-family: var(--font-ui);
+      font-size: var(--text-sm);
+    }
+    .topbar__right { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
+    .brand { font-family: var(--font-ui); font-weight: 600; letter-spacing: 0.01em; text-decoration: none; }
+    .brand__accent { color: var(--lab-accent); }
+    .breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--color-text-soft); }
+    .breadcrumb a { color: var(--color-text-soft); }
+    .breadcrumb a:hover { color: var(--color-signal); }
+    .breadcrumb [aria-current="page"] { color: var(--color-text); }
+    .topbar .btn--secondary { min-height: 2.75rem; }
+
+    main.container { flex: 1; padding: var(--space-7) 0 var(--space-6); }
+    .page-header { margin-bottom: var(--space-6); }
+    .page-header .meta { margin-bottom: var(--space-3); }
+    .lp-link { font-family: var(--font-ui); font-size: var(--text-sm); }
+
+    .steuerung { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin: var(--space-5) 0 var(--space-3); }
+    .steuerung .ui-label { margin: 0; }
+    #modusText { margin: 0 0 var(--space-5); color: var(--color-text-soft); }
+
+    .reiter-panel { padding-top: var(--space-5); }
+    .reiter-panel > .scene:only-child { min-height: 18rem; }
+
+    /* Aufgaben */
+    .term {
+      font-family: var(--font-ui); font-feature-settings: "lnum"; font-weight: 600;
+      font-size: var(--h3); letter-spacing: 0.02em; margin: 0;
+    }
+    .term--klein { font-size: var(--text-lg); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+    .btn-row .btn { min-height: 2.75rem; }
+    .btn-row:empty { display: none; }
+    .gegenzahl-ausgabe:empty { display: none; }
+    .aufgabe h4 { margin: var(--space-3) 0 0; }
+
+    .zahl-eingabe { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+    .zahl-eingabe .ui-label { min-width: 4.5rem; }
+    .vz-btn { min-width: 2.75rem; min-height: 2.75rem; padding: 0 var(--space-3); font-size: var(--text-lg); line-height: 1; justify-content: center; }
+    input.betrag-feld { width: 5.5rem; min-height: 2.75rem; font-size: var(--text-lg); font-feature-settings: "lnum", "tnum"; }
+    .eingabe-zeile { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-6); align-items: flex-start; }
+    .eingabe-zeile .zahl-eingabe { flex-direction: column; align-items: flex-start; }
+    .eingabe-zeile .zahl-eingabe .ui-label { min-width: 0; }
+
+    /* Zahlenstrahl (Komponente) */
+    .zs-scene { padding: var(--space-3) var(--space-2); }
+    .zahlenstrahl-wrap { width: 100%; }
+    svg.zahlenstrahl { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; }
+    .zs-figur { cursor: grab; outline: none; }
+    .zs-figur[aria-disabled="true"] { cursor: default; }
+    .zs-text { font-family: var(--font-ui); font-feature-settings: "lnum", "tnum"; font-size: var(--text-xs); fill: var(--color-text); }
+    .zs-text--null { font-weight: 700; }
+    .zs-text--wert { font-size: var(--text-sm); font-weight: 700; }
+    .zs-text--sprung { font-size: var(--text-sm); font-weight: 600; }
+    .zs-legende { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font-size: var(--text-sm); color: var(--color-text-soft); }
+    .zs-legende li { display: flex; align-items: center; gap: var(--space-2); }
+    .zs-erklaerung { font-family: var(--font-ui); font-size: var(--text-sm); }
+    .zs-erklaerung:empty { display: none; }
+
+    /* Zeichen markieren: Kreis = Rechenzeichen, Dreieck = Vorzeichen */
+    .zeichen-term { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
+    .zeichen-btn {
+      position: relative; min-width: 2.75rem; min-height: 3.25rem; padding: 0 var(--space-2);
+      font: inherit; color: var(--color-text); background: none; cursor: pointer;
+      border: 2px dashed var(--color-border); border-radius: var(--radius-md);
+    }
+    .zeichen-btn:hover { border-color: var(--color-signal); }
+    .zeichen-btn[data-rolle], .zeichen-muster { border-style: solid; border-color: var(--color-line); }
+    .zeichen-btn[data-rolle="rechenzeichen"], .zeichen-muster[data-rolle="rechenzeichen"] { border-radius: 50%; }
+    .zeichen-btn[data-rolle="vorzeichen"] { border-color: transparent; }
+    .zeichen-btn[data-rolle="vorzeichen"]::after, .zeichen-muster[data-rolle="vorzeichen"]::after {
+      content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+      border-left: 0.5rem solid transparent; border-right: 0.5rem solid transparent; border-bottom: 0.7rem solid var(--color-line);
+    }
+    .zeichen-legende { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font-size: var(--text-sm); }
+    .zeichen-legende li { display: flex; align-items: center; gap: var(--space-2); }
+    .zeichen-muster { position: relative; display: inline-block; width: 1.25rem; height: 1.25rem; border: 2px solid var(--color-line); }
+    .zeichen-muster[data-rolle="vorzeichen"] { border-color: transparent; }
+
+    /* Musterfolge, Stufen, Auswertung */
+    .muster-tabelle td { vertical-align: middle; }
+    .muster-vergleich { font-family: var(--font-ui); font-size: var(--text-sm); color: var(--color-text-soft); }
+    .muster .zahl-eingabe .ui-label { min-width: 0; }
+    .term-wert { font-family: var(--font-ui); font-weight: 600; font-size: var(--text-lg); font-feature-settings: "lnum", "tnum"; }
+    .stufenwahl .btn--secondary[role="radio"] { min-width: 5.5rem; }
+    .ergebnis-zahl { font-size: var(--text-lg); font-weight: 600; }
+    .strategie textarea { font-family: var(--font-body); font-size: var(--text-base); }
+    .meldung:empty { display: none; }
+    .card > :first-child { margin-top: 0; }
+
+    /* Koordinatensystem (Komponente) */
+    .ks-scene { padding: var(--space-3); }
+    .koordinaten-wrap { width: 100%; max-width: 35rem; margin-inline: auto; }
+    svg.koordinatensystem { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; cursor: crosshair; }
+    .ks-griff { outline: none; }
+    .ks-text { font-family: var(--font-ui); font-feature-settings: "lnum", "tnum"; font-size: var(--text-xs); fill: var(--color-text); }
+    .ks-text--achse { font-size: var(--text-sm); font-weight: 600; }
+    .ks-text--quadrant { font-size: var(--text-lg); font-weight: 600; fill: var(--color-text-soft); }
+    .ks-text--label { font-size: var(--text-sm); font-weight: 700; paint-order: stroke; stroke: var(--color-surface); stroke-width: 4px; }
+    .punkt-liste { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); padding-left: 0; list-style: none; font-feature-settings: "lnum", "tnum"; }
+    .quadrant-wahl .btn--secondary { min-height: 2.75rem; }
+    .regeltabelle-tab td, .regeltabelle-tab th { text-align: center; }
+    .regeltabelle-tab td { font-family: var(--font-ui); font-weight: 600; font-size: var(--text-lg); }
+    .regeltabelle-tab td.beispiele { text-align: left; font-weight: 500; font-size: var(--text-sm); }
+    .regeltabelle-tab th:last-child { text-align: left; }
+    .regeltabelle-tab .beispiel { display: block; }
+    .umkehrprobe:empty { display: none; }
+    .umkehrprobe { font-weight: 600; }
+
+    .page-footer {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: var(--space-2) var(--space-5);
+      padding: var(--space-5) 0 var(--space-6);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-ui); font-size: var(--text-sm); color: var(--color-text-soft);
+    }
+    .page-footer__links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+    .page-footer .linklike {
+      appearance: none; background: none; border: 0; padding: var(--space-2) 0; min-height: 2.75rem;
+      font: inherit; color: inherit; cursor: pointer;
+      text-decoration: underline; text-decoration-color: var(--color-signal); text-underline-offset: 0.18em;
+    }
+    .page-footer .linklike:hover, .page-footer a:hover { color: var(--color-signal); }
+    .page-footer p { margin: 0; width: 100%; text-align: center; }
+
+    .legal-dialog {
+      width: min(100% - 2 * var(--space-4), 40rem); max-height: 85vh;
+      padding: var(--space-5); color: var(--color-text);
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    }
+    .legal-dialog::backdrop { background: color-mix(in srgb, var(--color-bg) 70%, transparent); }
+    .legal-dialog__kopf { display: flex; justify-content: space-between; align-items: start; gap: var(--space-4); }
+    .legal-dialog h2 { margin: 0 0 var(--space-4); font-size: var(--h3); }
+    .legal-item { margin-bottom: var(--space-4); }
+    .legal-item p { margin: 0 0 var(--space-1); font-size: var(--text-sm); }
+
+    /* Einbettung: Topbar, Breadcrumb, Footer-Links und LP-Link aus, «powered by» bleibt. */
+    .is-embed .topbar, .is-embed .page-footer__links, .is-embed .page-footer__copy, .is-embed .lp-link { display: none; }
+    .is-embed main.container { padding-top: var(--space-5); }
+  </style>
+</head>
+<body data-lab="mathe">
+
+<div class="container">
+  <header class="topbar">
+    <a class="brand" href="https://www.cogniviolabs.com">cogni<span class="brand__accent">vio</span> labs</a>
+    <div class="topbar__right">
+      <nav class="breadcrumb" data-i18n-aria-label="nav.breadcrumb">
+        <a href="https://www.cogniviolabs.com">Cogniviolabs</a>
+        <span aria-hidden="true">/</span>
+        <a href="https://www.cogniviolabs.com/lab/math" data-i18n="nav.fach"></a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" data-i18n="lab.title"></span>
+      </nav>
+      <button id="themeToggle" type="button" class="btn btn--secondary" data-i18n-title="theme.label"></button>
+    </div>
+  </header>
+</div>
+
+<main class="container">
+  <div class="page-header">
+    <p class="meta" data-i18n="lab.meta"></p>
+    <h1 class="lab-title" data-i18n="lab.title"></h1>
+    <p class="prose" data-i18n="lab.kernfrage"></p>
+    <a class="lp-link" href="https://www.cogniviolabs.com/lab/math/negative-zahlen/lehrperson" data-i18n="nav.lp_link"></a>
+  </div>
+
+  <div id="ladeFehler" class="callout callout--error" role="alert" hidden></div>
+
+  <div id="labInhalt" hidden>
+    <p class="prose" data-i18n="lab.intro"></p>
+
+    <div class="steuerung">
+      <span id="modusLabel" class="ui ui-label" data-i18n="mode.label"></span>
+      <div id="modusGruppe" class="segmented" role="radiogroup" aria-labelledby="modusLabel">
+        <button type="button" class="btn btn--secondary" role="radio" aria-checked="false" data-modus="entdecken" data-i18n="mode.entdecken"></button>
+        <button type="button" class="btn btn--secondary" role="radio" aria-checked="false" data-modus="ueben" data-i18n="mode.ueben"></button>
+        <button type="button" class="btn btn--secondary" role="radio" aria-checked="false" data-modus="check" data-i18n="mode.check"></button>
+      </div>
+      <span id="modusFest" class="badge" hidden></span>
+    </div>
+    <p id="modusText"></p>
+
+    <div id="reiterListe" class="tabs" role="tablist" data-i18n-aria-label="a11y.tabliste">
+      <button type="button" role="tab" id="tab-zahlenstrahl" aria-controls="panel-zahlenstrahl" aria-selected="true" data-reiter="zahlenstrahl" data-i18n="tab.zahlenstrahl"></button>
+      <button type="button" role="tab" id="tab-klammern" aria-controls="panel-klammern" aria-selected="false" data-reiter="klammern" data-i18n="tab.klammern"></button>
+      <button type="button" role="tab" id="tab-malgeteilt" aria-controls="panel-malgeteilt" aria-selected="false" data-reiter="malgeteilt" data-i18n="tab.malgeteilt"></button>
+      <button type="button" role="tab" id="tab-koordinaten" aria-controls="panel-koordinaten" aria-selected="false" data-reiter="koordinaten" data-i18n="tab.koordinaten"></button>
+    </div>
+
+    <section id="panel-zahlenstrahl" class="reiter-panel stack" role="tabpanel" aria-labelledby="tab-zahlenstrahl" data-reiter="zahlenstrahl" tabindex="0">
+      <div class="scene"></div>
+    </section>
+    <section id="panel-klammern" class="reiter-panel stack" role="tabpanel" aria-labelledby="tab-klammern" data-reiter="klammern" tabindex="0" hidden>
+      <div class="scene"></div>
+    </section>
+    <section id="panel-malgeteilt" class="reiter-panel stack" role="tabpanel" aria-labelledby="tab-malgeteilt" data-reiter="malgeteilt" tabindex="0" hidden>
+      <div class="scene"></div>
+    </section>
+    <section id="panel-koordinaten" class="reiter-panel stack" role="tabpanel" aria-labelledby="tab-koordinaten" data-reiter="koordinaten" tabindex="0" hidden>
+      <div class="scene"></div>
+    </section>
+  </div>
+</main>
+
+<div class="container">
+  <footer class="page-footer">
+    <span class="brand">cogni<span class="brand__accent">vio</span> labs</span>
+    <div class="page-footer__links">
+      <button type="button" class="linklike" data-legal="impressum" data-i18n="footer.impressum"></button>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="linklike" data-legal="datenschutz" data-i18n="footer.datenschutz"></button>
+      <span aria-hidden="true">·</span>
+      <a href="https://www.cogniviolabs.com/lab/math/negative-zahlen/lehrperson" data-i18n="footer.lp_link"></a>
+    </div>
+    <p class="meta" data-marke="Cogniviolabs"></p>
+    <p class="meta page-footer__copy">© 2026 Cogniviolabs · Alain Nicolas Lavanchy · Kanton Aargau</p>
+  </footer>
+</div>
+
+<dialog id="legalDialog" class="legal-dialog" aria-labelledby="legalTitle">
+  <div class="legal-dialog__kopf">
+    <h2 id="legalTitle"></h2>
+    <button id="legalClose" type="button" class="btn btn--secondary" data-i18n="legal.schliessen"></button>
+  </div>
+  <p id="legalStatus" class="meta"></p>
+  <div id="legalContent"></div>
+</dialog>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

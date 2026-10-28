@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Cogniviolabs</title>
+  <link rel="preconnect" href="https://assets.cogniviolabs.com" crossorigin>
+  <link rel="stylesheet" href="https://assets.cogniviolabs.com/css/cognivio-common.v1.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- Markdown-Parser lokal auf der Hauptdomain, kein CDN -->
+  <script src="/assets/js/marked.umd.js"></script>
+  <style>
+    /* Seitenspezifisches Layout, nur Tokens (Design-Skills 5.2). Kopf, Fuss und Dialog wie index.html. */
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+    [hidden] { display: none !important; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      gap: var(--space-3) var(--space-5); padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-family: var(--font-ui); font-size: var(--text-sm);
+    }
+    .topbar__right { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
+    .brand { font-family: var(--font-ui); font-weight: 600; letter-spacing: 0.01em; text-decoration: none; }
+    .brand__accent { color: var(--lab-accent); }
+    .breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--color-text-soft); }
+    .breadcrumb a { color: var(--color-text-soft); }
+    .breadcrumb a:hover { color: var(--color-signal); }
+    .breadcrumb [aria-current="page"] { color: var(--color-text); }
+    .topbar .btn--secondary { min-height: 2.75rem; }
+
+    main.container { flex: 1; padding: var(--space-6) 0; }
+    .zurueck { font-family: var(--font-ui); font-size: var(--text-sm); }
+    .page-header { margin: var(--space-5) 0 var(--space-5); }
+    .page-header .meta { margin-bottom: var(--space-3); }
+
+    /* Meta-Karten aus dem Frontmatter */
+    .lp-meta { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0 0 var(--space-6); }
+    .lp-meta__karte { padding: var(--space-2) var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+    .lp-meta dt { margin: 0; }
+    .lp-meta dd { margin: 0; font-weight: 600; font-size: var(--text-sm); }
+
+    /* Inhalt aus lp-content.md */
+    .lp-inhalt { max-width: var(--measure); }
+    .lp-abschnitt { margin-bottom: var(--space-5); }
+    .lp-abschnitt > :first-child { margin-top: 0; }
+    .lp-abschnitt > :last-child { margin-bottom: 0; }
+    .lp-abschnitt table { margin-bottom: var(--space-4); font-size: var(--text-sm); }
+    .lp-abschnitt code { overflow-wrap: anywhere; }
+    .lp-abschnitt td { vertical-align: top; }
+    .lp-abschnitt hr { display: none; }
+    .lp-lernziele li { margin-bottom: var(--space-2); }
+
+    .page-footer {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: var(--space-2) var(--space-5); padding: var(--space-5) 0 var(--space-6);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-ui); font-size: var(--text-sm); color: var(--color-text-soft);
+    }
+    .page-footer__links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+    .page-footer .linklike {
+      appearance: none; background: none; border: 0; padding: var(--space-2) 0; min-height: 2.75rem;
+      font: inherit; color: inherit; cursor: pointer;
+      text-decoration: underline; text-decoration-color: var(--color-signal); text-underline-offset: 0.18em;
+    }
+    .page-footer .linklike:hover { color: var(--color-signal); }
+    .page-footer p { margin: 0; width: 100%; text-align: center; }
+
+    .legal-dialog {
+      width: min(100% - 2 * var(--space-4), 40rem); max-height: 85vh;
+      padding: var(--space-5); color: var(--color-text);
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    }
+    .legal-dialog::backdrop { background: color-mix(in srgb, var(--color-bg) 70%, transparent); }
+    .legal-dialog__kopf { display: flex; justify-content: space-between; align-items: start; gap: var(--space-4); }
+    .legal-dialog h2 { margin: 0 0 var(--space-4); font-size: var(--h3); }
+    .legal-item { margin-bottom: var(--space-4); }
+    .legal-item p { margin: 0 0 var(--space-1); font-size: var(--text-sm); }
+
+    .is-embed .topbar, .is-embed .page-footer__links, .is-embed .page-footer__copy, .is-embed .zurueck { display: none; }
+  </style>
+</head>
+<body data-lab="mathe" data-audience="teacher">
+
+<div class="container">
+  <header class="topbar">
+    <a class="brand" href="https://www.cogniviolabs.com">cogni<span class="brand__accent">vio</span> labs</a>
+    <div class="topbar__right">
+      <nav class="breadcrumb" data-i18n-aria-label="nav.breadcrumb">
+        <a href="https://www.cogniviolabs.com">Cogniviolabs</a>
+        <span aria-hidden="true">/</span>
+        <a href="https://www.cogniviolabs.com/lab/math" data-i18n="nav.fach"></a>
+        <span aria-hidden="true">/</span>
+        <a href="./" data-i18n="lab.title"></a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" data-i18n="lp.titel"></span>
+      </nav>
+      <button id="themeToggle" type="button" class="btn btn--secondary" data-i18n-title="theme.label"></button>
+    </div>
+  </header>
+</div>
+
+<main class="container">
+  <a class="zurueck" href="./" data-i18n="lp.zum_lab"></a>
+
+  <div class="page-header">
+    <p id="lpMeta" class="meta" data-i18n="lp.titel"></p>
+    <h1 id="lpTitel" class="lab-title" data-i18n="lab.title"></h1>
+  </div>
+
+  <div id="lpKarten"></div>
+  <p id="lpStatus" class="meta" role="status" data-i18n="lp.laden"></p>
+  <div id="lpInhalt" class="lp-inhalt" hidden></div>
+</main>
+
+<div class="container">
+  <footer class="page-footer">
+    <span class="brand">cogni<span class="brand__accent">vio</span> labs</span>
+    <div class="page-footer__links">
+      <button type="button" class="linklike" data-legal="impressum" data-i18n="footer.impressum"></button>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="linklike" data-legal="datenschutz" data-i18n="footer.datenschutz"></button>
+    </div>
+    <p class="meta" data-marke="Cogniviolabs"></p>
+    <p class="meta page-footer__copy">© 2026 Cogniviolabs · Alain Nicolas Lavanchy · Kanton Aargau</p>
+  </footer>
+</div>
+
+<dialog id="legalDialog" class="legal-dialog" aria-labelledby="legalTitle">
+  <div class="legal-dialog__kopf">
+    <h2 id="legalTitle"></h2>
+    <button id="legalClose" type="button" class="btn btn--secondary" data-i18n="legal.schliessen"></button>
+  </div>
+  <p id="legalStatus" class="meta"></p>
+  <div id="legalContent"></div>
+</dialog>
+
+<script type="module" src="js/lehrperson.js"></script>
+</body>
+</html>

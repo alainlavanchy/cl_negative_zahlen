@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "figuren": [
+    {"id": "haus", "name_key": "fig.haus", "geschlossen": true, "punkte": [[-4, -3], [4, -3], [4, 2], [0, 6], [-4, 2]]},
+    {"id": "drachen", "name_key": "fig.drachen", "geschlossen": true, "punkte": [[0, 5], [4, 0], [0, -5], [-4, 0]]},
+    {"id": "pfeil", "name_key": "fig.pfeil", "geschlossen": true, "punkte": [[-6, 0], [-2, 3], [-2, 1], [5, 1], [5, -1], [-2, -1], [-2, -3]]}
+  ]
+}
